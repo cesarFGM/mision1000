@@ -1109,6 +1109,10 @@
 
           <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Botar la basura')">🗑️ Botar basura +5</button>
           <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Compartir juguetes')">🧸 Compartir juguetes +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Recoger la mesa')">🍽️ Recoger mesa +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Colocar la mesa')">🍴 Colocar mesa +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Ordenar la habitación')">🛏️ Ordenar habitación +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('mia', 5, 'Ordenar la casa')">🏠 Ordenar casa +5</button>
         </div>
         <h3 data-i18n="weeklyBonus">⭐ Bonus semanal</h3>
         <div class="btn-grid">
@@ -1121,6 +1125,10 @@
         <div class="btn-grid">
           <button class="task-btn btn-sub" onclick="subPoints('mia', 20, 'Pelear')">⚔️ Pelear -20</button>
           <button class="task-btn btn-sub" onclick="subPoints('mia', 10, 'No recoger')">🗑️ No recoger -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('mia', 10, 'No recoger la mesa')">🍽️ No recoger mesa -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('mia', 10, 'No colocar la mesa')">🍴 No colocar mesa -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('mia', 10, 'No ordenar la habitación')">🛏️ No ordenar habitación -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('mia', 10, 'No ordenar la casa')">🏠 No ordenar casa -10</button>
         </div>
       </div>
     </div>
@@ -1169,6 +1177,10 @@
 
           <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Botar la basura')">🗑️ Botar basura +5</button>
           <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Compartir juguetes')">🧸 Compartir juguetes +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Recoger la mesa')">🍽️ Recoger mesa +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Colocar la mesa')">🍴 Colocar mesa +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Ordenar la habitación')">🛏️ Ordenar habitación +5</button>
+          <button class="task-btn btn-add" onclick="addPoints('santi', 5, 'Ordenar la casa')">🏠 Ordenar casa +5</button>
         </div>
         <h3 data-i18n="weeklyBonus">⭐ Bonus semanal</h3>
         <div class="btn-grid">
@@ -1181,6 +1193,10 @@
         <div class="btn-grid">
           <button class="task-btn btn-sub" onclick="subPoints('santi', 20, 'Pelear')">⚔️ Pelear -20</button>
           <button class="task-btn btn-sub" onclick="subPoints('santi', 10, 'No recoger')">🗑️ No recoger -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('santi', 10, 'No recoger la mesa')">🍽️ No recoger mesa -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('santi', 10, 'No colocar la mesa')">🍴 No colocar mesa -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('santi', 10, 'No ordenar la habitación')">🛏️ No ordenar habitación -10</button>
+          <button class="task-btn btn-sub" onclick="subPoints('santi', 10, 'No ordenar la casa')">🏠 No ordenar casa -10</button>
         </div>
       </div>
     </div>
@@ -1401,7 +1417,11 @@ const TASK_TRANSLATIONS = {
     'Leer': 'Read', 'Tocar piano': 'Play piano', 'Hacer deporte': 'Exercise', 'Botar la basura': 'Take out trash', 'Compartir juguetes': 'Share toys',
     'Semana de huevos': 'Egg week', 'Leer extra': 'Extra reading', 'Resumen del libro': 'Book summary', 'Ruleta extra': 'Extra roulette',
     'Piano': 'Piano', 'Gimnasia': 'Gymnastics', 'Fútbol': 'Soccer', 'Partido': 'Game',
-    'Dar comida': 'Feed pets', 'Comer todo': 'Eat everything', 'Hacer tarea': 'Do homework', 'Botar basura': 'Take out trash', 'Compartir': 'Share'
+    'Dar comida': 'Feed pets', 'Comer todo': 'Eat everything', 'Hacer tarea': 'Do homework', 'Botar basura': 'Take out trash', 'Compartir': 'Share',
+    'Recoger la mesa': 'Clear the table', 'Colocar la mesa': 'Set the table', 'Ordenar la habitación': 'Tidy the bedroom', 'Ordenar la casa': 'Tidy the house',
+    'Recoger mesa': 'Clear table', 'Colocar mesa': 'Set table', 'Ordenar habitación': 'Tidy bedroom', 'Ordenar casa': 'Tidy house',
+    'No recoger la mesa': 'Did not clear the table', 'No colocar la mesa': 'Did not set the table', 'No ordenar la habitación': 'Did not tidy the bedroom', 'No ordenar la casa': 'Did not tidy the house',
+    'No recoger mesa': 'Did not clear table', 'No colocar mesa': 'Did not set table', 'No ordenar habitación': 'Did not tidy bedroom', 'No ordenar casa': 'Did not tidy house', 'Pelear': 'Fighting', 'No recoger': 'Did not clean up'
   }
 };
 function t(key, vars = {}) {
@@ -1417,7 +1437,7 @@ const ADMIN_PROFILES = ['papas'];
 const PROFILE_LABELS = { mia: 'Mía', santi: 'Santi', papas: 'Papás' };
 const PARENT_PASSWORD = '1000';
 const VALID_PROFILES = ['mia', 'santi', 'papas'];
-const CORE_TASKS = ['Pasear al perro', 'Dar comida animales', 'Comer toda la comida', 'Hacer la tarea', 'Leer', 'Tocar piano', 'Hacer deporte', 'Botar la basura', 'Compartir juguetes'];
+const CORE_TASKS = ['Pasear al perro', 'Dar comida animales', 'Comer toda la comida', 'Hacer la tarea', 'Leer', 'Tocar piano', 'Hacer deporte', 'Botar la basura', 'Compartir juguetes', 'Recoger la mesa', 'Colocar la mesa', 'Ordenar la habitación', 'Ordenar la casa'];
 const AVATAR_OPTIONS = {
   mia: [
     { icon: 'img:mia.png', label: 'Mía cool' },
