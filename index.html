@@ -1373,12 +1373,13 @@ const META = 1000;
 // Para sincronizar entre dispositivos: crea un proyecto en Firebase y pega tus claves aquí.
 // Mientras apiKey esté vacío, la app seguirá guardando en este dispositivo.
 const FIREBASE_CONFIG = {
-  apiKey: '',
-  authDomain: '',
-  projectId: '',
-  storageBucket: '',
-  messagingSenderId: '',
-  appId: ''
+  apiKey: 'AIzaSyAB00h3B9ZH_vnMMucU3k81RQAh8_HKa6o',
+  authDomain: 'mision1000-87ad3.firebaseapp.com',
+  projectId: 'mision1000-87ad3',
+  storageBucket: 'mision1000-87ad3.firebasestorage.app',
+  messagingSenderId: '402914666078',
+  appId: '1:402914666078:web:6f117ce737e9098701f6cf',
+  measurementId: 'G-KYKCQGF7E1'
 };
 const FIREBASE_COLLECTION = 'mision1000_familia';
 const FIREBASE_DOCUMENT = 'estado';
@@ -1523,7 +1524,7 @@ const SURPRISE_PRIZES = [
 ];
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
-let state = { mia: 0, santi: 0, unlockedMia: [], unlockedSanti: [], lastMilestone: { mia: -1, santi: -1 }, history: { mia: {}, santi: {} }, currentProfile: 'mia', language: 'es', avatars: { mia: 'img:mia.png', santi: 'img:santi.png' }, calendarEvents: { mia: [], santi: [] }, calendarMoves: { mia: {}, santi: {} }, calendarTimeOverrides: { mia: {}, santi: {} } };
+let state = { mia: 0, santi: 0, unlockedMia: [], unlockedSanti: [], lastMilestone: { mia: -1, santi: -1 }, history: { mia: {}, santi: {} }, currentProfile: 'mia', language: 'es', updatedAt: 0, avatars: { mia: 'img:mia.png', santi: 'img:santi.png' }, calendarEvents: { mia: [], santi: [] }, calendarMoves: { mia: {}, santi: {} }, calendarTimeOverrides: { mia: {}, santi: {} } };
 let pendingParentProfile = null;
 let pendingCalendarTimeEdit = null;
 let pendingCalendarAddPlayer = null;
@@ -1544,6 +1545,7 @@ function loadState() {
 }
 
 function saveState() {
+  if (!cloudApplying) state.updatedAt = Date.now();
   try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
   scheduleCloudSave();
 }
@@ -1553,7 +1555,12 @@ let cloudReady = false;
 let cloudApplying = false;
 let cloudSaveTimer = null;
 function firebaseConfigReady() { return FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId && window.firebase; }
-function sharedStatePayload() { const { currentProfile, ...shared } = state; return { ...shared, updatedAt: Date.now() }; }
+function sharedStatePayload() { const { currentProfile, ...shared } = state; return { ...shared, updatedAt: state.updatedAt || Date.now() }; }
+function remoteIsOlder(remote) {
+  const remoteTime = Number(remote && remote.updatedAt ? remote.updatedAt : 0);
+  const localTime = Number(state && state.updatedAt ? state.updatedAt : 0);
+  return localTime > remoteTime;
+}
 function mergeSharedState(remote) {
   const currentProfile = state.currentProfile;
   state = { ...state, ...remote, currentProfile, language: ['es','en'].includes(remote.language) ? remote.language : state.language,
@@ -1580,8 +1587,11 @@ function initCloudSync() {
     cloudDb = firebase.firestore(); cloudReady = true;
     const ref = cloudDb.collection(FIREBASE_COLLECTION).doc(FIREBASE_DOCUMENT);
     ref.onSnapshot(snapshot => {
+      if (snapshot.metadata && snapshot.metadata.hasPendingWrites) { updateCloudStatus('syncing'); return; }
       if (!snapshot.exists) { scheduleCloudSave(); return; }
-      cloudApplying = true; mergeSharedState(snapshot.data() || {});
+      const remote = snapshot.data() || {};
+      if (remoteIsOlder(remote)) { scheduleCloudSave(); updateCloudStatus('syncing'); return; }
+      cloudApplying = true; mergeSharedState(remote);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
       applyLanguage(); updateProfileUI(); updateUI('mia'); updateUI('santi'); renderAllCalendars(); updateResumen();
       cloudApplying = false; updateCloudStatus('online');
