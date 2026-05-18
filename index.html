@@ -1938,7 +1938,7 @@ function showTab(tab) {
 // ─── EXTRA CHALLENGES ─────────────────────────────────────────
 let currentChallenge = null;
 let slotTimer = null;
-const SLOT_ICONS = ['🔢', '🐶', '🇬🇧', '🇫🇷', '📚', '🎲', '⭐', '🧠'];
+const SLOT_ICONS = ['🔢', '🐶', '🇬🇧', '🇫🇷', '🌎', '🏛️', '📚', '🎲', '⭐', '🧠'];
 const NUMBER_WORDS = [
   { n: 1, en: 'one', fr: 'un' }, { n: 2, en: 'two', fr: 'deux' },
   { n: 3, en: 'three', fr: 'trois' }, { n: 4, en: 'four', fr: 'quatre' },
@@ -1946,6 +1946,23 @@ const NUMBER_WORDS = [
   { n: 7, en: 'seven', fr: 'sept' }, { n: 8, en: 'eight', fr: 'huit' },
   { n: 9, en: 'nine', fr: 'neuf' }, { n: 10, en: 'ten', fr: 'dix' }
 ];
+const CAPITAL_QUESTIONS = [
+  { icon: '🇨🇱', country: 'Chile', capital: ['santiago', 'santiago de chile'] },
+  { icon: '🇪🇸', country: 'España', capital: ['madrid'] },
+  { icon: '🇫🇷', country: 'Francia', capital: ['paris', 'parís'] },
+  { icon: '🇮🇹', country: 'Italia', capital: ['roma'] },
+  { icon: '🇬🇧', country: 'Reino Unido', capital: ['londres', 'london'] },
+  { icon: '🇺🇸', country: 'Estados Unidos', capital: ['washington', 'washington dc', 'washington d.c.'] },
+  { icon: '🇦🇷', country: 'Argentina', capital: ['buenos aires'] },
+  { icon: '🇲🇽', country: 'México', capital: ['ciudad de mexico', 'ciudad de méxico', 'mexico', 'méxico'] },
+  { icon: '🇧🇷', country: 'Brasil', capital: ['brasilia', 'brasília'] },
+  { icon: '🇵🇪', country: 'Perú', capital: ['lima'] },
+  { icon: '🇨🇴', country: 'Colombia', capital: ['bogota', 'bogotá'] },
+  { icon: '🇯🇵', country: 'Japón', capital: ['tokio', 'tokyo'] },
+  { icon: '🇨🇳', country: 'China', capital: ['pekin', 'pekín', 'beijing'] },
+  { icon: '🇦🇺', country: 'Australia', capital: ['canberra'] }
+];
+
 const BASIC_VOCAB = [
   { icon: '🐶', es: 'perro', en: ['dog'], fr: ['chien'] },
   { icon: '🐱', es: 'gato', en: ['cat'], fr: ['chat'] },
@@ -1981,6 +1998,17 @@ function makeMathQuestion(player) {
   return { icon: '🔢', title: 'Matemáticas', question: '¿Cuánto es ' + table + ' x ' + factor + '?', answers: [String(table * factor)], key: 'math-' + table + '-' + factor };
 }
 
+function makeCapitalQuestion() {
+  const item = pickRandom(CAPITAL_QUESTIONS);
+  return {
+    icon: item.icon,
+    title: 'Capitales',
+    question: '¿Cuál es la capital de ' + item.country + '?',
+    answers: item.capital,
+    key: 'capital-' + item.country
+  };
+}
+
 function makeLanguageQuestion(language) {
   const useNumber = Math.random() < .38;
   if (useNumber) {
@@ -1999,7 +2027,8 @@ function makeQuestion(player, usedKeys) {
   const makers = [
     () => makeMathQuestion(player),
     () => makeLanguageQuestion('en'),
-    () => makeLanguageQuestion('fr')
+    () => makeLanguageQuestion('fr'),
+    () => makeCapitalQuestion()
   ];
   for (let tries = 0; tries < 40; tries++) {
     const question = pickRandom(makers)();
