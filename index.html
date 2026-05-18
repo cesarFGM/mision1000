@@ -1538,6 +1538,7 @@ function loadState() {
       const savedProfile = parsed.currentProfile || 'mia';
       const migratedProfile = ['mama', 'papa', 'admin', 'papas'].includes(savedProfile) ? 'mia' : savedProfile;
       state = { ...state, ...parsed, language: ['es','en'].includes(parsed.language) ? parsed.language : 'es', history: { mia: {}, santi: {}, ...(parsed.history || {}) }, currentProfile: VALID_PROFILES.includes(migratedProfile) ? migratedProfile : 'mia', avatars: { mia: 'img:mia.png', santi: 'img:santi.png', ...(parsed.avatars || {}) }, calendarEvents: { mia: [], santi: [], ...(parsed.calendarEvents || {}) }, calendarMoves: { mia: {}, santi: {}, ...(parsed.calendarMoves || {}) }, calendarTimeOverrides: { mia: {}, santi: {}, ...(parsed.calendarTimeOverrides || {}) } };
+      if (!parsed.updatedAt && (Number(parsed.mia || 0) > 0 || Number(parsed.santi || 0) > 0 || Object.keys(parsed.history || {}).length)) state.updatedAt = Date.now();
       if (!parsed.avatars || parsed.avatars.mia === '💗') state.avatars.mia = 'img:mia.png';
       if (!parsed.avatars || parsed.avatars.santi === '⚽') state.avatars.santi = 'img:santi.png';
     }
@@ -1553,6 +1554,8 @@ function saveState() {
 let cloudDb = null;
 let cloudReady = false;
 let cloudApplying = false;
+let cloudInitialLoaded = false;
+let cloudSaveQueued = false;
 let cloudSaveTimer = null;
 function firebaseConfigReady() { return FIREBASE_CONFIG && FIREBASE_CONFIG.apiKey && FIREBASE_CONFIG.projectId && window.firebase; }
 function sharedStatePayload() { const { currentProfile, ...shared } = state; return { ...shared, updatedAt: state.updatedAt || Date.now() }; }
@@ -1574,9 +1577,18 @@ function updateCloudStatus(mode) {
 }
 function scheduleCloudSave() {
   if (!cloudReady || cloudApplying) return;
+  if (!cloudInitialLoaded) {
+    cloudSaveQueued = true;
+    updateCloudStatus('syncing');
+    return;
+  }
   clearTimeout(cloudSaveTimer);
   cloudSaveTimer = setTimeout(async () => {
-    try { updateCloudStatus('syncing'); await cloudDb.collection(FIREBASE_COLLECTION).doc(FIREBASE_DOCUMENT).set(sharedStatePayload(), { merge: true }); updateCloudStatus('online'); }
+    try {
+      updateCloudStatus('syncing');
+      await cloudDb.collection(FIREBASE_COLLECTION).doc(FIREBASE_DOCUMENT).set(sharedStatePayload(), { merge: true });
+      updateCloudStatus('online');
+    }
     catch (error) { console.warn('No se pudo sincronizar con Firebase', error); updateCloudStatus('error'); }
   }, 350);
 }
@@ -1588,15 +1600,26 @@ function initCloudSync() {
     const ref = cloudDb.collection(FIREBASE_COLLECTION).doc(FIREBASE_DOCUMENT);
     ref.onSnapshot(snapshot => {
       if (snapshot.metadata && snapshot.metadata.hasPendingWrites) { updateCloudStatus('syncing'); return; }
-      if (!snapshot.exists) { scheduleCloudSave(); return; }
+      if (!snapshot.exists) {
+        cloudInitialLoaded = true;
+        scheduleCloudSave();
+        return;
+      }
       const remote = snapshot.data() || {};
-      if (remoteIsOlder(remote)) { scheduleCloudSave(); updateCloudStatus('syncing'); return; }
+      if (remoteIsOlder(remote)) {
+        cloudInitialLoaded = true;
+        scheduleCloudSave();
+        updateCloudStatus('syncing');
+        return;
+      }
       cloudApplying = true; mergeSharedState(remote);
       try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch(e) {}
       applyLanguage(); updateProfileUI(); updateUI('mia'); updateUI('santi'); renderAllCalendars(); updateResumen();
-      cloudApplying = false; updateCloudStatus('online');
+      cloudApplying = false;
+      cloudInitialLoaded = true;
+      cloudSaveQueued = false;
+      updateCloudStatus('online');
     }, error => { console.warn('Firebase snapshot error', error); updateCloudStatus('error'); });
-    scheduleCloudSave();
   } catch (error) { console.warn('Firebase no está configurado', error); updateCloudStatus('error'); }
 }
 
